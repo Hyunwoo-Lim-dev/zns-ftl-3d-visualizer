@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZNS-FTL 3D Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- 호환성 100% 보장 클래식 Three.js 및 OrbitControls 로드 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+  <div id="hud-panel" class="panel">
+    <h2>실시간 성능 HUD</h2>
+    <p>모드: <strong id="mode-text">Conventional FTL</strong></p>
+    <p>WAF (쓰기 증폭): <strong id="waf-text">1.00</strong></p>
+    <hr />
+    <p>Valid (유효): <span id="valid-count" class="green">0</span></p>
+    <p>Invalid (무효): <span id="invalid-count" class="red">0</span></p>
+    <p>Empty (빈칸): <span id="empty-count">16</span></p>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <div id="control-panel" class="panel">
+    <h2>시뮬레이션 제어</h2>
+    <button id="btn-mode">Mode: FTL ↔ ZNS 전환</button>
+    <button id="btn-write">+ Write Data (데이터 쓰기)</button>
+    <button id="btn-update">Update Data (데이터 수정)</button>
+    <button id="btn-gc">Trigger GC / Zone Reset</button>
+  </div>
+
+  <!-- type="module" 제거: 일반 스크립트로 즉시 실행 -->
+  <script src="main.js"></script>
+</body>
+</html>
