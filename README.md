@@ -11,3 +11,5 @@
 1. 저장소를 클론합니다.
    ```bash
    git clone [https://github.com/Hyunwoo-Lim-dev/zns-ftl-3d-visualizer.git](https://github.com/Hyunwoo-Lim-dev/zns-ftl-3d-visualizer.git)
+## 라이선스
+이 프로젝트는 **MIT License**를 따릅니다.
