@@ -99,7 +99,7 @@ document.getElementById('btn-write').addEventListener('click', () => {
   alert('저장 공간이 가득 찼습니다! Trigger GC / Zone Reset을 실행하세요.');
 });
 
-// [버튼 3] Update Data (기존 데이터 수정 - 각 줄에 Valid와 Invalid가 섞이도록 파편화 유도)
+// [버튼 3] Update Data (기존 데이터 수정 - 1번째, 3번째 칸만 무효화하여 초록/빨강 섞이게 만듦)
 document.getElementById('btn-update').addEventListener('click', () => {
   const validCells = [];
   const emptyCells = [];
@@ -118,7 +118,7 @@ document.getElementById('btn-update').addEventListener('click', () => {
     return;
   }
 
-  // 한 줄 전체가 빨간색이 되지 않도록(살아남은 초록색 블록이 남아 GC 시 WAF가 상승하도록) 짝수 칸(0, 2번) 우선 무효화
+  // 각 줄의 0번, 2번 칸(짝수 인덱스)만 골라서 빨간색으로 변경 -> 살아남은 초록색 블록 보장!
   const mixedTarget = validCells.find(cell => cell.p % 2 === 0);
   const target = mixedTarget || validCells[0];
   state[target.z][target.p] = 2;
@@ -134,7 +134,7 @@ document.getElementById('btn-update').addEventListener('click', () => {
 // [버튼 4] Trigger GC (기존 FTL) / Zone Reset (ZNS 모드)
 document.getElementById('btn-gc').addEventListener('click', () => {
   if (isZnsMode) {
-    // ZNS 모드: Invalid가 포함된 가장 앞선 Zone을 유효 데이터 복사 없이 통째로 Reset (WAF = 1.00 유지)
+    // ZNS 모드: 유효 데이터 복사 없이 해당 Zone 전체를 통째로 Reset (WAF = 1.00 유지)
     for (let z = 0; z < ZONES; z++) {
       if (state[z].includes(2) || state[z].includes(1)) {
         state[z] = Array(PAGES).fill(0);
@@ -143,7 +143,7 @@ document.getElementById('btn-gc').addEventListener('click', () => {
       }
     }
   } else {
-    // Conventional FTL 모드: Invalid가 가장 많은 Zone 선택 -> 남은 Valid 데이터를 다른 빈칸으로 복사(WAF 증가!) 후 Zone 초기화
+    // Conventional FTL 모드: Invalid가 가장 많은 Zone 선택 -> 남은 Valid 데이터를 다른 빈칸으로 복사(WAF 증가!) 후 초기화
     let victimZone = -1;
     let maxInvalid = 0;
     for (let z = 0; z < ZONES; z++) {
@@ -158,7 +158,6 @@ document.getElementById('btn-gc').addEventListener('click', () => {
       return;
     }
 
-    // 희생 Zone 안의 살아남은 Valid 블록 개수만큼 다른 Zone 빈칸으로 이주(복사) 발생
     const survivingValids = state[victimZone].filter(v => v === 1).length;
     state[victimZone] = Array(PAGES).fill(0);
 
@@ -168,7 +167,7 @@ document.getElementById('btn-gc').addEventListener('click', () => {
       for (let p = 0; p < PAGES && moved < survivingValids; p++) {
         if (state[z][p] === 0) {
           state[z][p] = 1;
-          nandWrites++; // GC로 인한 내부 추가 쓰기 -> WAF 상승 원인!
+          nandWrites++; // GC로 인한 내부 추가 쓰기 -> WAF 1.20으로 상승!
           moved++;
         }
       }
