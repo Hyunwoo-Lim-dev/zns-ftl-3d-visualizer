@@ -99,7 +99,7 @@ document.getElementById('btn-write').addEventListener('click', () => {
   alert('저장 공간이 가득 찼습니다! Trigger GC / Zone Reset을 실행하세요.');
 });
 
-// [버튼 3] Update Data (기존 데이터 수정)
+// [버튼 3] Update Data (기존 데이터 수정 - 각 줄에 Valid와 Invalid가 섞이도록 파편화 유도)
 document.getElementById('btn-update').addEventListener('click', () => {
   const validCells = [];
   const emptyCells = [];
@@ -118,8 +118,9 @@ document.getElementById('btn-update').addEventListener('click', () => {
     return;
   }
 
-  // 시연 시 0번 Zone(첫째 줄)에 Valid와 Invalid가 섞여 GC 시 WAF 상승이 확실히 보이도록 앞쪽 Valid 우선 선택
-  const target = validCells[0];
+  // 한 줄 전체가 빨간색이 되지 않도록(살아남은 초록색 블록이 남아 GC 시 WAF가 상승하도록) 짝수 칸(0, 2번) 우선 무효화
+  const mixedTarget = validCells.find(cell => cell.p % 2 === 0);
+  const target = mixedTarget || validCells[0];
   state[target.z][target.p] = 2;
 
   const dest = emptyCells[0];
